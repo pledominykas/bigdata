@@ -61,11 +61,6 @@ def process_images_in_parallel(image_directory, output_directory, process_functi
     end_time = time.time()
     return end_time - start_time
 
-def dynamic_worker(input_queue):
-    while not input_queue.empty():
-        image_path, output_directory, process_function = input_queue.get()
-        process_function((image_path, output_directory))
-
 if __name__ == '__main__':
     image_dir = r'C:\Users\dominykas.pleseviciu\Desktop\BigData\data_set_VU_test1\Images'
     output_dir = r'C:\Users\dominykas.pleseviciu\Desktop\BigData\Output'
