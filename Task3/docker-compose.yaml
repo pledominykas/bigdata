@@ -1,0 +1,121 @@
+# https://medium.com/the-glitcher/mongodb-sharding-9c5357a95ec1
+services:
+  # Shard 1, replica set 1, node 1
+  mongors1n1:
+    container_name: mongors1n1
+    image: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+    volumes:
+      - ./mongors1n1:/data/db
+  # Shard 1, replica set 1, node 2
+  mongors1n2:
+    container_name: mongors1n2
+    image: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - "27027:27017"
+    expose:
+      - "27017"
+    volumes:
+      - ./mongors1n2:/data/db
+  # Shard 1, replica set 1, node 3
+  mongors1n3:
+    container_name: mongors1n3
+    image: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - "27037:27017"
+    expose:
+      - "27017"
+    volumes:
+      - ./mongors1n3:/data/db
+  # Shard 2, replica set 1, node 1
+  mongors2n1:
+    container_name: mongors2n1
+    image: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - "27047:27017"
+    expose:
+      - "27017"
+    volumes:
+      - ./mongors2n1:/data/db
+  # Shard 2, replica set 1, node 2
+  mongors2n2:
+    container_name: mongors2n2
+    image: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - "27057:27017"
+    expose:
+      - "27017"
+    volumes:
+      - ./mongors2n2:/data/db
+  # Shard 2, replica set 1, node 3
+  mongors2n3:
+    container_name: mongors2n3
+    image: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - "27067:27017"
+    expose:
+      - "27017"
+    volumes:
+      - ./mongors2n3:/data/db
+  # Config server 1
+  mongocfg1:
+    container_name: mongocfg1
+    image: mongo
+    command: mongod --configsvr --replSet mongocfg --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+    volumes:
+      - ./mongocfg1:/data/db
+  # Config server 2
+  mongocfg2:
+    container_name: mongocfg2
+    image: mongo
+    command: mongod --configsvr --replSet mongocfg --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+    volumes:
+      - ./mongocfg2:/data/db
+  # Config server 3
+  mongocfg3:
+    container_name: mongocfg3
+    image: mongo
+    command: mongod --configsvr --replSet mongocfg --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+    volumes:
+      - ./mongocfg3:/data/db
+  # Router 1 (mongos)
+  mongos:
+    container_name: mongos1
+    image: mongo
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+      - mongocfg3
+    command: mongos --configdb mongocfg/mongocfg1:27017,mongocfg2:27017,mongocfg3:27017 --port 27017 --bind_ip 0.0.0.0
+    ports:
+      - "27019:27017"
+    expose:
+      - "27017"
+  # Router 2 (mongos)
+  mongos2:
+    container_name: mongos2
+    image: mongo
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+      - mongocfg3
+    command: mongos --configdb mongocfg/mongocfg1:27017,mongocfg2:27017,mongocfg3:27017 --port 27017 --bind_ip 0.0.0.0
+    ports:
+      - "27020:27017"
+    expose:
+      - "27017"
